@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 #include "glm/glm.hpp"
 #include <bgfx/bgfx.h>
 
@@ -26,19 +24,19 @@ class Mesh {
 
 	public:
 	Mesh();
+	~Mesh();
 	Mesh(int w, int h);
+	Mesh(int size, uint32_t argb = 0xffffffff);
 	Mesh(Point* points, int pCount, int* tris, int tCount);
 
 	const size_t getWidth();
 	const size_t getHeight();
 
-	void generateMesh(int w, int h);
-	void createHeightMap();
+	void generateMesh(int size, uint32_t argb = 0xffffffff);
+	void generateMesh(int w, int h, uint32_t argb = 0xffffffff);
 
 	void createBuffers();
 	void bindBuffers();
-
-	void destroyBuffers();
 
 	const glm::mat4 getModelMatrix();
 	void resetModelMTX();

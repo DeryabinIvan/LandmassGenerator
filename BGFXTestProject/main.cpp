@@ -22,16 +22,16 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "Mesh.h"
 #include "Mouse.h"
 #include "Player.h"
 #include "Keyboard.h"
+#include "ChunkManager.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 #define RESET_FLAGS (BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4)
 
-#define MESH_SIZE 1000
+#define CHUNK_SIZE 100
 
 const float FOV = 90.0f;
 
@@ -124,9 +124,7 @@ int main(int argc, const char** argv) {
 
 	glm::mat4 projection = glm::perspectiveFov(FOV, (float) width, (float) height, 0.01f, 100.0f);
 
-	unsigned int counter = 0;
-
-	Player player1(glm::vec3(0.0f, 0.5f, 0.0f), 0.05f);
+	Player player1(glm::vec3(0.f, 5.f, 0.f), .05f);
 	//Camera camera(glm::vec3(0.0f, 0.5f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 	Point cubeVertices[] =
@@ -157,18 +155,15 @@ int main(int argc, const char** argv) {
 		6, 3, 7,
 	};
 
-	Mesh plane/*(cubeVertices, 8, cubeTris, 36)*/;
-	plane.generateMesh(MESH_SIZE, MESH_SIZE);
-	plane.createHeightMap();
-	plane.createBuffers();
-
-	plane.scale(glm::pow(2.0f, -5.0f));
+	ChunkManager manager(1, CHUNK_SIZE);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 
 		player1.look(mouse);
 		player1.move(keyboard);
+
+		manager.update(player1.getPosition(), player1.getFrontVec());
 
 		//<--------------------------keyboard event start-------------------------->
 		if (keyboard.keyPressedOnce(Keyboard::KEY_ESCAPE)) {
@@ -183,20 +178,6 @@ int main(int argc, const char** argv) {
 		if (keyboard.keyPressedOnce(Keyboard::KEY_F2)) {
 			wireframe_debug = !wireframe_debug;
 			advanced_debug = false;
-		}
-
-		if (keyboard.keyPressedOnce(Keyboard::KEY_F)) {
-			rotation = !rotation;
-		}
-
-		if (keyboard.keyPressedOnce(Keyboard::KEY_R)) {
-			plane.destroyBuffers();
-			plane.generateMesh(MESH_SIZE, MESH_SIZE);
-			plane.createHeightMap();
-			plane.createBuffers();
-
-			plane.scale(glm::pow(2.0f, -5));
-			plane.translate(-float(plane.getWidth()) / 2, 0, float(plane.getHeight()) / 2);
 		}
 		//<--------------------------keyboard event end-------------------------->
 
@@ -214,15 +195,9 @@ int main(int argc, const char** argv) {
 		//<--------------------------render start-------------------------->
 
 		glm::mat4 view = player1.getViewMatrix();
-		view = glm::rotate(view, counter * 0.01f, glm::vec3(0, 1, 0));
 		bgfx::setViewTransform(view_id, &view[0][0], &projection[0][0]);
 
-		plane.bindBuffers();
-
-		glm::mat4 model = plane.getModelMatrix();
-		bgfx::setTransform(&model[0][0]);
-
-		bgfx::submit(0, program);
+		manager.draw(view_id, program);
 
 		bgfx::dbgTextClear();
 		const bgfx::Stats* stats = bgfx::getStats();
@@ -238,13 +213,8 @@ int main(int argc, const char** argv) {
 		//<--------------------------render end-------------------------->
 
 		bgfx::frame();
-
-		if (rotation) {
-			counter++;
-		}
 	}
 
-	plane.destroyBuffers();
 	bgfx::destroy(program);
 	bgfx::shutdown();
 

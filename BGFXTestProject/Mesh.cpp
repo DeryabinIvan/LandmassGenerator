@@ -12,11 +12,43 @@ Mesh::Mesh() {
 	modelMTX = glm::identity<glm::mat4>();
 }
 
+Mesh::~Mesh() {
+	if (bgfx::isValid(vbh)) {
+		bgfx::destroy(vbh);
+	}
+
+	if (bgfx::isValid(ibh)) {
+		bgfx::destroy(ibh);
+	}
+
+	if (points != nullptr) {
+		delete[] points;
+		pCount = 0;
+	}
+
+	if (triangles != nullptr) {
+		delete[] triangles;
+		tCount = 0;
+	}
+
+	width = 0;
+	height = 0;
+}
+
 Mesh::Mesh(int w, int h) {
 	generateMesh(w, h);
 }
 
+Mesh::Mesh(int size, uint32_t argb) {
+	generateMesh(size, argb);
+}
+
 Mesh::Mesh(Point* points, int pCount, int* tris, int tCount) {
+	this->width = 0;
+	this->height = 0;
+
+	modelMTX = glm::identity<glm::mat4>();
+
 	this->pCount = pCount;
 	this->tCount = tCount;
 
@@ -35,7 +67,11 @@ const size_t Mesh::getHeight() {
 	return height;
 }
 
-void Mesh::generateMesh(int w, int h) {
+void Mesh::generateMesh(int size, uint32_t argb) {
+	generateMesh(size, size, argb);
+}
+
+void Mesh::generateMesh(int w, int h, uint32_t argb) {
 	width = w;
 	height = h;
 
@@ -55,10 +91,10 @@ void Mesh::generateMesh(int w, int h) {
 	int vertIndex = 0, trisIndex = 0;
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			p.x = (offsetX + x)/2.f;
+			p.x = offsetX + x;
 			p.y = 0;
-			p.z = (offsetZ - y)/2.f;
-			p.abgr = 0xff0f77f0;
+			p.z = offsetZ - y;
+			p.abgr = argb;
 
 			points[vertIndex] = p;
 
@@ -79,7 +115,7 @@ void Mesh::generateMesh(int w, int h) {
 	}
 }
 
-void Mesh::createHeightMap() {
+void createHeightMap(Mesh& m) {
 	uint32_t index = 0;
 	float f1 = 32, f2 = 128, f3 = 8;
 
@@ -91,13 +127,13 @@ void Mesh::createHeightMap() {
 
 	offsetX = dist(e2), offsetY = dist(e2);
 
-	for (uint16_t i = 0; i < width; i++) {
-		for (uint16_t j = 0; j < height; j++) {
+	for (uint16_t i = 0; i < m.getWidth(); i++) {
+		for (uint16_t j = 0; j < m.getHeight(); j++) {
 			float h1 = glm::perlin(glm::vec2((i + offsetX) / f1, (j + offsetY) / f1)),
 				  h2 = glm::perlin(glm::vec2((i + f1 - offsetX) / f2, (j - f2 + offsetY) / f2)),
 				  h3 = glm::perlin(glm::vec2((i + offsetY) / f3, (j + offsetX) / f3));
 
-			index = i + j * width;
+			/*index = i + j * width;
 			auto& current = points[index];
 
 			float tmp = (h1 * 10.0f + h2 * 2.0f) * (h3 * 1.25f);
@@ -116,7 +152,7 @@ void Mesh::createHeightMap() {
 				current.abgr = 0xff666666;
 			} else {
 				current.abgr = 0xffe8e8e8;
-			}
+			}*/
 		}
 	}
 }
@@ -135,16 +171,6 @@ void Mesh::createBuffers() {
 void Mesh::bindBuffers() {
 	bgfx::setVertexBuffer(0, vbh);
 	bgfx::setIndexBuffer(ibh);
-}
-
-void Mesh::destroyBuffers() {
-	if (bgfx::isValid(vbh)) {
-		bgfx::destroy(vbh);
-	}
-
-	if (bgfx::isValid(ibh)) {
-		bgfx::destroy(ibh);
-	}
 }
 
 const glm::mat4 Mesh::getModelMatrix() {
