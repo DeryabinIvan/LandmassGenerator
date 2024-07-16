@@ -5,6 +5,9 @@
 #include <filesystem>
 #include <vector>
 
+#define BX_CONFIG_DEBUG 1
+#define GLFW_DLL
+
 #include <bx/bx.h>
 #include <bx/math.h>
 #include <bgfx/bgfx.h>
@@ -31,7 +34,7 @@
 #define WINDOW_HEIGHT 720
 #define RESET_FLAGS (BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4)
 
-#define CHUNK_SIZE 100
+#define CHUNK_SIZE 10
 
 const float FOV = 90.0f;
 
@@ -126,34 +129,6 @@ int main(int argc, const char** argv) {
 
 	Player player1(glm::vec3(0.f, 5.f, 0.f), .05f);
 	//Camera camera(glm::vec3(0.0f, 0.5f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-
-	Point cubeVertices[] =
-	{
-		{-1.0f,  1.0f,  1.0f, 0xff000000 },
-		{ 1.0f,  1.0f,  1.0f, 0xff0000ff },
-		{-1.0f, -1.0f,  1.0f, 0xff00ff00 },
-		{ 1.0f, -1.0f,  1.0f, 0xff00ffff },
-		{-1.0f,  1.0f, -1.0f, 0xffff0000 },
-		{ 1.0f,  1.0f, -1.0f, 0xffff00ff },
-		{-1.0f, -1.0f, -1.0f, 0xffffff00 },
-		{ 1.0f, -1.0f, -1.0f, 0xffffffff },
-	};
-
-	int cubeTris[] =
-	{
-		0, 1, 2, // 0
-		1, 3, 2,
-		4, 6, 5, // 2
-		5, 6, 7,
-		0, 2, 4, // 4
-		4, 2, 6,
-		1, 5, 3, // 6
-		5, 7, 3,
-		0, 4, 1, // 8
-		4, 5, 1,
-		2, 3, 6, // 10
-		6, 3, 7,
-	};
 
 	ChunkManager manager(1, CHUNK_SIZE);
 
