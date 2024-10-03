@@ -130,7 +130,7 @@ int main(int argc, const char** argv) {
 	Player player1(glm::vec3(0.f, 5.f, 0.f), .05f);
 	//Camera camera(glm::vec3(0.0f, 0.5f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
-	ChunkManager manager(1, CHUNK_SIZE);
+	ChunkManager manager(3, CHUNK_SIZE);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();

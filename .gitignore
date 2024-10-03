@@ -37,6 +37,8 @@ bld/
 [Ll]og/
 [Ll]ogs/
 lib/
+output/
+build/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -78,6 +80,9 @@ StyleCopReport.xml
 *_i.c
 *_p.c
 *_h.h
+*.exp
+*.exe
+*.lib
 *.ilk
 *.meta
 *.obj

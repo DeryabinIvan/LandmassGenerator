@@ -19,7 +19,27 @@ void ChunkManager::addNewMesh(int offsetX, int offsetY, uint32_t color) {
 }
 
 void ChunkManager::update(const glm::vec3& position, const glm::vec3& direction) {
+	int offsetX = static_cast<int>(position.x / size);
+	int offsetY = static_cast<int>(position.z / size);
 
+	for (int x = -distance; x <= distance; ++x) {
+		for (int y = -distance; y <= distance; ++y) {
+			int chunkX = x + offsetX;
+			int chunkY = y + offsetY;
+
+			bool foundChunk = false;
+			for (auto& chunk : chunkList) {
+				if (chunk.x == chunkX && chunk.y == chunkY) {
+					foundChunk = true;
+					break;
+				}
+			}
+
+			if (!foundChunk) {
+				addNewMesh(chunkX, chunkY, 0xffffffff);
+			}
+		}
+	}
 }
 
 void ChunkManager::draw(bgfx::ViewId view, bgfx::ProgramHandle program) {
