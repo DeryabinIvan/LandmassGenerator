@@ -1,3 +1,10 @@
 {
-    "cmake.ignoreCMakeListsMissing": true
+    "cmake.ignoreCMakeListsMissing": true,
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "${workspaceFolder}",
+            "binaryPath": "${workspaceFolder}\\build-release\\LandmassGeneratorDemo.exe",
+            "binaryArgs": []
+        }
+    ]
 }
